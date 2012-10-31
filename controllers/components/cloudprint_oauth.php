@@ -20,7 +20,7 @@ class CloudprintOauthComponent extends OauthComponent {
     );
 
     function startup(&$controller) {
-        $id = $this->Session->read("Auth.Vendor.id");
+        $id = $this->Session->read("Auth.User.id");
         if (!empty($id)) {
             $isAuthorized = false;
             $name = "Cloudprint";

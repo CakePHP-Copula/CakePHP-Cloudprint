@@ -1,0 +1,1 @@
+Configure::load('cloudprint.cloudprint');

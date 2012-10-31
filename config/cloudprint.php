@@ -10,7 +10,7 @@ $config['Apis']['Cloudprint']['oauth'] = array(
     'access' => 'token'
 );
 $config['Apis']['Cloudprint']['scope'] = "https://www.googleapis.com/auth/cloudprint";
-$config['Apis']['Cloudprint']['callback'] = "https://splat.dnsd.me/oauth2callback";
+$config['Apis']['Cloudprint']['callback'] = "callback_uri_goes_here";
 $config['Apis']['Cloudprint']['create'] = array(
     'job' => array('submit' => array(
             'printerid',

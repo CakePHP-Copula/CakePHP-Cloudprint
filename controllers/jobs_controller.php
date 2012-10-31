@@ -7,17 +7,17 @@ class JobsController extends CloudprintAppController {
     public $components = array('Auth', 'Cloudprint.CloudprintOauth');
 
     function beforeFilter() {
-        $this->Session->write('Auth.Vendor.id', '1');
+        $this->Session->write('Auth.User.id', '1');
         $this->CloudprintOauth->useDbConfig = "Cloudprint";
         $this->Auth->deny('*');
         $this->Auth->allow('add');
-        /* as written, this allows anyone to add a print job as long as the vendor has authorized printing
+        /* as written, this allows anyone to add a print job as long as the User has authorized printing
          * if that is not desired behavior, replace line 14 with something along the lines of:
          *      if($this->params['action'] == "add" && $this->Session->check("Auth.User.id"){
          *          $this->Auth->allow('add');
          *      }
          */
-        if ($this->Session->check('Auth.Vendor.id')) {
+        if ($this->Session->check('Auth.User.id')) {
             if ($this->Session->check('Oauth.Cloudprint.access_token')) {
                 $this->Auth->allow('*');
             } else {
@@ -59,7 +59,7 @@ class JobsController extends CloudprintAppController {
             $token = $this->CloudprintOauth->callback();
             if ($token) {
                 $this->data = array('Token' => array(
-                        'user_id' => $this->Session->read('Auth.Vendor.id'),
+                        'user_id' => $this->Session->read('Auth.User.id'),
                         'access_token' => $token['access_token'],
                         'refresh_token' => $token['refresh_token']
                         ));
@@ -89,7 +89,7 @@ class JobsController extends CloudprintAppController {
                }
             }
         } else {
-            // vendor has not authorized printing
+            // User has not authorized printing
             return false;
         }
     }
