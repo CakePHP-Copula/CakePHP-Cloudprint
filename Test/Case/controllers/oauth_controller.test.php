@@ -57,7 +57,7 @@ class OauthControllerTestCase extends CakeTestCase {
         $this->Oauth->Token->expectCallCount('getAccessToken', 3);
         $this->Oauth->params['url']['code'] = "testcode";
         $this->Oauth->params['url']['state'] = "/";
-        $this->Oauth->Session->setReturnValue('read', 1, array('Auth.User.id'));
+        $this->Oauth->Session->setReturnValue('read', 1, array('Auth.Vendor.id'));
         $this->Oauth->Token->expectCallCount('saveTokenDb', 2);
         $expectedRedirect = Router::url('/');
         $this->Oauth->callback();

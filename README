@@ -1,0 +1,96 @@
+**********************
+*** Altered Files: ***
+**********************
+
+app/config/database.php
+app/config/routes.php
+
+*****************************
+*** Plugin Configuration: ***
+*****************************
+
+In database.php, 'login' and 'password' MUST be set to the OAuth consumer_key and consumer_secret obtained from Google.
+
+In routes.php, the route MUST be configured so that the callback address registered with Google (yallanotlob.com/oauth2callback) is directed to /cloudprint/oauth/callback
+A similar route to the authorize function is provided but not necessary.
+
+In app/plugins/cloudprint/config/cloudprint.php, the value of $config['Apis']['Cloudprint']['callback'] MUST match the callback address registered with Google.
+
+The sql file 'tables.sql' must be imported into the database.
+
+
+
+**************
+*** Usage: ***
+**************
+
+The website MUST be secured with an SSL certificate. Since you are handling credit card information, it is probably criminal not to do this. In any case, Google insists on it -- all requests will fail otherwise.
+
+The local timezone MUST be set to the correct local time, otherwise the plugin will *always* think that its authorization tokens are expired, and keep requesting new ones. It may or may not get caught in a loop that way.
+
+In order to set up printing, the Vendor must visit the cloudprint/oauth/authorize function. This prompts them to allow access. This has been integrated with the AuthComponent functions, so if someone with a Vendor id tries to access any controller function, it should [a] redirect them to cloudprint/oauth/authorize, and then [b] redirect them back to where they were at afterwards.
+
+The best way to implement printing would be to place a call at the end of the checkout() function, like so:
+
+        $resource = 'vendors/invoice_vendors'.$order_id.'/'.$vendor_id;
+        $url = Router::url(array('controller' => 'jobs', 'action' => 'add', 'plugin' => 'cloudprint', array($resource, $vendor_id, "Order number ".$order_id)), false);
+        $success = $this->requestAction($url);
+
+This will not work correctly if the Member cannot access the invoice_vendors() function. You may want to allow this, you may not. The second best option would be to add the above code to the manage_order function where it plays a sound. In both cases, you will need to supply the $order_id and $vendor_id.
+
+A caveat on performance: this plugin is **SLOW!!** For the most part this is not really avoidable. In order to submit a print job, the plugin needs to do 1-3 database calls and 2-3 requests to google's servers. This can be expected to take several seconds, possibly up to 10.
+
+=============
+DOCUMENTATION
+=============
+
+This plugin depends on two other plugins, ProLoser's Apis Plugin for sending requests and Plank's Pdfize for generating PDF files. Probably you won't ever want to mess with the Apis Plugin. On the other hand, you will almost certainly want to change how the PDF files are generated.
+
+Further documentation is included with both plugins and also on Github
+https://github.com/plank/pdfize
+https://github.com/ProLoser/CakePHP-Api-Datasources/
+
+
+============
+PDF OUTPUT
+============
+
+Google Cloud Print enables printing of the following MIME types:
+application/pdf
+image/jpeg
+image/png
+All others will be rejected.
+
+The testpdf method of the jobscontroller is an example of how to enable PDF output. It is recommended to set up a copy of your existing invoice_vendors() action to output pdf. Basically just copy the Pdfize.Pdf part of $components in the jobs_controller into whatever controller you want to enable PDF output for, and change "testpdf" to the name of the action you want (e.g. invoice_vendors_pdf ).
+
+You would invoke the cloud print plugin in almost the same way, changing line 35 above from
+ $resource = 'vendors/invoice_vendors'.$order_id.'/'.$vendor_id;
+ to
+ $resource = 'vendors/invoice_vendors_pdf'.$order_id.'/'.$vendor_id;
+************************
+*** Not Implemented: ***
+************************
+
+Views for any and all controller functions are optional and have not been created. If you want to make a user interface to manage printers and print jobs the functions are all there, but you'll have to do the graphics yourselves.
+
+Error messages are either incomplete or unimplemented. They have, however, been overriden: calling $this->cakeError within the plugin will refer to error methods in cloudprint/app_error.php, not the ones in the main app folder.
+
+Printing long documents is probably a guaranteed fail. This involves sending a multi-part request which is complicated.
+
+The plugin is set to use the **first** printer that Google lists. This may be 'print to Google Drive', in which case you will have to set it to use the second listed printer. Enabling support for a default printer would involve adding a "default_printer_id" to your Vendor model and adjusting the add() function in the jobs_controller accordingly.
+
+***************
+*** Errata: ***
+***************
+
+Technically the CloudprintAppController::beforeFilter should call parent::beforeFilter. However, since AppController::beforeFilter is a {deleted, unprintable} mess, this does not happen.
+
+For testing purposes it can be useful to add the following line to the beginning of CloudprintAppController::beforeFilter()
+        $this->Session->write('Auth.Vendor.id', '1'); #remove this in production
+        
+If you're having trouble with making calls to the Cloudprint Service, you can try using cUrl from the command line like so:
+$ curl -v -H "X-CloudPrint-Proxy: yallanotlob" -H "Authorization: OAuth ya29.AHES6ZS8mUvZh1UzUE9dDkM_b2ZJTac6VTqhZTx62UWtzPTXKuG_3HQ" https://www.google.com/cloudprint/search
+
+Or you can use google's Oauth Playground online:
+
+https://developers.google.com/oauthplayground/

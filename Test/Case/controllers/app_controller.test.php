@@ -44,12 +44,12 @@ class CloudprintAppControllerTestCase extends CakeTestCase {
     }
 
     function testIsAuthorized() {
-        $this->App->Session->setReturnValue('read', 1, array('Auth.User.id'));
+        $this->App->Session->setReturnValue('read', 1, array('Auth.Vendor.id'));
         $this->assertTrue($this->App->isAuthorized());
     }
 
     function testNotAuthorized() {
-        $this->App->Session->setReturnValue('read', 99, array('Auth.User.id'));
+        $this->App->Session->setReturnValue('read', 99, array('Auth.Vendor.id'));
         $this->assertFalse($this->App->isAuthorized());
     }
 

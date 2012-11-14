@@ -70,7 +70,7 @@ class OauthController extends CloudprintAppController {
             $grant_type = "authorization_code";
             $access_token = $this->Token->getAccessToken($oAuthCode, $grant_type);
             if ($access_token && $this->params['url']['state'] != 'force') {
-                $this->Token->saveTokenDb($this->Session->read('Auth.User.id'), $access_token);
+                $this->Token->saveTokenDb($this->Session->read('Auth.Vendor.id'), $access_token);
             }
             $this->Session->write("OAuth.Cloudprint.access_token", $access_token);
             $this->redirect(($this->params['url']['state'] == 'force') ? "/" : $this->params['url']['state']);

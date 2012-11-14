@@ -61,7 +61,7 @@ class JobsController extends CloudprintAppController {
     }
 
     function add($resource, $title, $user_id = null) {
-        $id = ($user_id) ? $user_id : $this->Session->read('Auth.User.id');
+        $id = ($user_id) ? $user_id : $this->Session->read('Auth.Vendor.id');
         $token = $this->Token->getTokenDb($id);
         if ($token) {
             $this->CloudprintOauth->setCloudprintAccessToken($token['access_token']);
@@ -82,10 +82,10 @@ class JobsController extends CloudprintAppController {
                     $this->cakeError('printJobError', $job);
                 }
             } else {
-                //User has no active printers
+                //vendor has no active printers
             }
         } else {
-            // User has not authorized printing
+            // vendor has not authorized printing
             return false;
         }
     }

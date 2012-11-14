@@ -30,7 +30,7 @@ class JobsControllerTestCase extends CakeTestCase {
         App::import('Component', 'Session');
         Mock::generate('SessionComponent');
         $this->Jobs->Session = new MockSessionComponent();
-        $this->Jobs->Session->setReturnValue('read', 1, array('Auth.User.id'));
+        $this->Jobs->Session->setReturnValue('read', 1, array('Auth.Vendor.id'));
     }
 
 
