@@ -1,4 +1,9 @@
 <?php
+/**
+ *
+ * @subpackage model
+ * @package Cloudprint
+ */
 
 class Printer extends CloudprintAppModel {
 
@@ -7,10 +12,9 @@ class Printer extends CloudprintAppModel {
     public $useTable = "printer";
     public $primaryKey = "id";
 
-    function getPrinters($status = null) {
+    function getPrinters() {
         $printers = $this->find('all', array(
-            'fields' => 'search',
-            'connection_status' => $status,
+            'fields' => 'printer'
                 ));
         return $printers;
     }

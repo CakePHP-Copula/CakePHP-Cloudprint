@@ -7,7 +7,9 @@ $config['Apis']['Cloudprint']['oauth'] = array(
     'version' => '2.0',
     'scheme' => 'https',
     'authorize' => 'auth',
-    'access' => 'token'
+    'access' => 'token',
+    'key' => '',
+    'secret' => ''
 );
 $config['Apis']['Cloudprint']['scope'] = "https://www.googleapis.com/auth/cloudprint";
 $config['Apis']['Cloudprint']['callback'] = "callback_uri_goes_here";
@@ -15,17 +17,15 @@ $config['Apis']['Cloudprint']['create'] = array(
     'job' => array('submit' => array(
             'printerid',
             'title',
-            'capabilities' => array(),
+            'capabilities',
             'content',
             'contentType',
-            'tag'
+            'optional' => array('tag')
     )),
     'printer' => array()
 );
 $config['Apis']['Cloudprint']['read'] = array(
-    'job' => array('job' => array(
-            'optional' => 'printerid'
-    )),
+    'job' => array('job' => array()),
     'printer' => array(
         'printer' => array(
             'printerid',
@@ -34,9 +34,7 @@ $config['Apis']['Cloudprint']['read'] = array(
         'capabilities' => array(
             'printerCapabilities' => array('printerid')
         ),
-        'search' => array(
-            'optional' => array(
-                'q', 'connection_status'))
+        'search' => array()
     )
 );
 $config['Apis']['Cloudprint']['delete'] = array(

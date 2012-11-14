@@ -1,16 +1,25 @@
 <?php
 
+/**
+ *
+ * @subpackage model
+ * @package Cloudprint
+ */
 class Job extends CloudprintAppModel {
 
     public $name = 'Job';
     public $useDbConfig = 'cloudprint';
     public $useTable = 'job';
     public $primaryKey = 'id';
-    protected $schema = array(
-        "id" => array('type' => 'string'),
-        "title" => array('type' => 'string'),
-        "printerId" => array('type' => 'string'),
-        "capabilities" => '',
+    var $_schema = array(
+        "id" => array(
+            'type' => 'string',
+            'length' => '255'
+        ),
+        "title" => array(
+            'type' => 'string'),
+        "printerid" => array('type' => 'string'),
+        "capabilities" => array('type' => 'string'),
         "content" => array('type' => 'string'),
         "contentType" => array('type' => 'string'),
         'tags' => array('type' => 'string'),
@@ -22,17 +31,26 @@ class Job extends CloudprintAppModel {
         'errorCode' => array('type' => 'string'),
         'message' => array('type' => 'string'),
     );
+
+    function onError() {
+        if (stristr($this->response, 'Error 404')) {
+            // $this->cakeError();
+        }
+    }
+
     /*
-     * @param string $jobid job number to look up
+     * Returns array of all jobs.
+     *
+     * ApisSource doesn't handle queries with *only* optional conditions well.
      * @return array One or more jobs
      */
-    function getJobs($jobid = null) {
-        $jobs = $this->find('all', array(
-            'fields' => 'job',
-            'jobid' => $jobid
-                ));
+
+    function getJobs() {
+        $query = array('fields' => 'job');
+        $jobs = $this->find('all', $query);
         return $jobs;
     }
+
     /* Adds page from local website to print queue
      * Creates document in app/tmp with filename of time() + $title
      * @param string $url Cake-local url of document to be printed
@@ -41,21 +59,25 @@ class Job extends CloudprintAppModel {
      * @param array  $capabilities Capabilities can be discovered using getPrinterInfo(). Can be used to set double sided or multiple copies.
      * @param string $tags A string of tags separated by spaces. Documents can be searched for by tag.
      */
+
     function addJobfromURL($url, $printerid, $title, $capabilities= null, $tags = null) {
         $document = $this->requestAction($url, array('return'));
-        $resource = new File(TMP .DS. time() . $title, true);
+        $resource = new File(TMP . DS . time() . $title, true);
         $resource->write($document);
         return $this->addJob($resource, $printerid, $title, $capabilities, $tags);
     }
-    function addJobfromFile(&$file, $printerid, $title, $capabilities = null, $tags = null){
-        $resource = new File($file);
-        if($resource->exists()){
+
+    function addJobfromFile($path, $printerid, $title, $capabilities = null, $tags = null) {
+        $resource = new File($path);
+        if ($resource->exists()) {
             return $this->addJob($resource, $printerid, $title, $capabilities, $tags);
         }
     }
-/* shamelessly cribbed from CakePHP 2.0
- * @param File $file document to be tested
- */
+
+    /* shamelessly cribbed from CakePHP 2.0
+     * @param File $file document to be tested
+     */
+
     function getMime(File &$file) {
         if (!$file->exists()) {
             return false;
@@ -69,32 +91,38 @@ class Job extends CloudprintAppModel {
         }
         return false;
     }
-/*
- * @param File $resource the file to be printed
- * @param string $printerid
- * @param string $title
- * @param array $capabilities
- * @param string $tags
- */
+
+    /*
+     * @param File $resource the file to be printed
+     * @param string $printerid
+     * @param string $title
+     * @param array $capabilities
+     * @param string $tags
+     */
+
     private function addJob(File &$resource, $printerid, $title, $capabilities = null, $tags = null) {
+        $capabilities = (empty($capabilities)) ? "{[]}" : $capabilities;
         $acceptedContentTypes = array(
             'application/pdf',
-            'image/jpg',
-            'image/png',
-            'text/html'
+            'image/jpeg',
+            'image/png'
         );
         $mime = $this->getMime($resource);
         if (in_array($mime, $acceptedContentTypes)) {
             $job = array(
-                'printerid' => $printerid,
-                'content' => $content,
-                'contentType' => $mime,
-                'title' => $title,
-                'capabilities' => $capabilities,
-                'tags' => $tags
-            );
-            $response = $this->save($job);
-            return $response;
+                'Job' => array(
+                    'printerid' => $printerid,
+                    'title' => $title,
+                    'capabilities' => $capabilities,
+                    'content' => "data:" . $mime . ";base64," . base64_encode($resource->read()),
+                    'contentType' => $mime
+                    ));
+            if (!empty($tags)) {
+                $job['Job']['tag'] = $tags;
+            }
+            $this->request['method'] = 'POST';
+            $this->save($job);
+            return $this->response;
         } else {
             return false;
         }

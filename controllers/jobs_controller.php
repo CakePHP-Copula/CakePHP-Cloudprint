@@ -1,30 +1,29 @@
 <?php
 
+/**
+ *
+ * @subpackage controller
+ * @package Cloudprint
+ * @property Job $Job
+ * @property CloudprintOauthComponent $CloudprintOauth
+ * @property PdfizePdfComponent $Pdf
+ */
 class JobsController extends CloudprintAppController {
 
     public $name = "Jobs";
-    public $uses = array('Cloudprint.Job', 'Cloudprint.Printer', 'Cloudprint.Token');
-    public $components = array('Auth', 'Cloudprint.CloudprintOauth');
+    public $uses = array('Cloudprint.Job', 'Cloudprint.Printer');
+    public $components = array('Cloudprint.CloudprintOauth', 'Pdfize.Pdf' => array(
+            'actions' => array('pdftest'),
+            'size' => 'a7',
+            'orientation' => 'portrait',
+            ));
 
     function beforeFilter() {
-        $this->Session->write('Auth.User.id', '1');
-        $this->CloudprintOauth->useDbConfig = "Cloudprint";
-        $this->Auth->deny('*');
-        $this->Auth->allow('add');
-        /* as written, this allows anyone to add a print job as long as the User has authorized printing
-         * if that is not desired behavior, replace line 14 with something along the lines of:
-         *      if($this->params['action'] == "add" && $this->Session->check("Auth.User.id"){
-         *          $this->Auth->allow('add');
-         *      }
-         */
-        if ($this->Session->check('Auth.User.id')) {
-            if ($this->Session->check('Oauth.Cloudprint.access_token')) {
-                $this->Auth->allow('*');
-            } else {
-                $this->Auth->allow('authorize', 'callback');
-                // $this->redirect(array('action' => 'authorize'));
-            }
+        //allow any logged in users to add print jobs
+        if ($this->Auth->user()) {
+            $this->Auth->allow('add');
         }
+        $this->Auth->allow('pdftest');
         parent::beforeFilter();
     }
 
@@ -53,40 +52,37 @@ class JobsController extends CloudprintAppController {
         $this->redirect(array('controller' => 'jobs', 'action' => 'index'));
     }
 
-    function callback() {
-        if (!empty($this->params['url']['code'])) {
-            xdebug_break();
-            $token = $this->CloudprintOauth->callback();
-            if ($token) {
-                $this->data = array('Token' => array(
-                        'user_id' => $this->Session->read('Auth.User.id'),
-                        'access_token' => $token['access_token'],
-                        'refresh_token' => $token['refresh_token']
-                        ));
-                $this->Token->save($this->data);
-            }
-            $this->redirect('/'); # or wherever you want them to go */
-        } else {
-            $this->Session->setFlash('You chose not to allow access');
-        }
+    function pdftest() {
+        /*
+         * This function exists only to demonstrate how to set up the PDF component. It uses the default layout in plugins/pdfize/views/layouts/pdf
+         * If you create the file app/views/layouts/pdf.ctp it will use that instead.
+         *
+         */
     }
 
-    function authorize() {
-        $this->CloudprintOauth->authorize();
-    }
-
-    function add($resource, $user_id, $title) {
-        $token = $this->CloudprintOauth->getToken($user_id);
-        if (!empty($token)) {
+    function add($resource, $title, $user_id = null) {
+        $id = ($user_id) ? $user_id : $this->Session->read('Auth.User.id');
+        $token = $this->Token->getTokenDb($id);
+        if ($token) {
+            $this->CloudprintOauth->setCloudprintAccessToken($token['access_token']);
             $printers = $this->Printer->getPrinters();
-            if (!empty($printers[0]['printer_id'])) {
-               $response = $this->Job->addJobFromUrl($resource, $printers[0]['printer_id'], $title);
-               if($response && $response['success'] == 'true'){
-                   //successfully added job
-                   return true;
-               } else{
-                   //did not add job
-               }
+            if (!empty($printers)) {
+                $printer_id = $printers['0']['id'];
+                $response = $this->Job->addJobFromUrl($resource, $printer_id, $title);
+                if ($response && $response['success'] == 'true') {
+                    return true;
+                } else {
+                    $job = array(
+                        'resource' => $resource,
+                        'title' => $title,
+                        'vendor_id' => $user_id,
+                        'user_id' => $id,
+                        'response' => $response
+                    );
+                    $this->cakeError('printJobError', $job);
+                }
+            } else {
+                //User has no active printers
             }
         } else {
             // User has not authorized printing

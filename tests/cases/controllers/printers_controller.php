@@ -1,7 +1,10 @@
 <?php
-class TestJobController extends JobController{
-        var $name = 'Job';
 
+App::import('Controller', 'Cloudprint.Printers');
+
+class TestPrintersController extends PrintersController {
+
+    var $name = "Printers";
     var $autoRender = false;
 
     function redirect($url, $status = null, $exit = true) {
@@ -17,17 +20,24 @@ class TestJobController extends JobController{
     }
 
 }
-class JobControllerTestCase extends CakeTestCase{
+
+class PrintersTestCase extends CakeTestCase {
 
     function startTest() {
-        $this->Jobs = new TestJobController();
-        $this->Jobs->constructClasses();
-        $this->Jobs->Component->initialize($this->Jobs);
+        $this->Printers = new TestPrintersController();
+        $this->Printers->constructClasses();
+        $this->Printers->Component->initialize($this->Printers);
+    }
+
+    function testIndex(){
+        
     }
 
     function endTest() {
-        unset($this->Jobs);
+        unset($this->Printers);
         ClassRegistry::flush();
     }
+
 }
+
 ?>

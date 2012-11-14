@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS
     `modified` datetime DEFAULT NULL,
     `refresh_token` text NOT NULL,
     PRIMARY KEY (`id`),
-    KEY (`user_id`));
+   UNIQUE KEY (`user_id`));
