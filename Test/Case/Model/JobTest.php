@@ -1,7 +1,8 @@
 <?php
 
-App::import('Model', 'Cloudprint.Job');
-App::import('Core', 'File');
+App::uses('Job', 'Cloudprint.Model');
+App::uses('File', 'Utility');
+
 /**
  * @package cake
  * @subpackage cake.cake.test.libs
@@ -9,7 +10,8 @@ App::import('Core', 'File');
  */
 class JobTestCase extends CakeTestCase {
 
-    function startTest($method) {
+    function setUp() {
+        parent::setUp();
         $ds = ConnectionManager::getDataSource('cloudprint');
         $ds->config['access_token'] = "ya29.AHES6ZT9YLzwNtqG3RXv0VaqCWXgeCmd_7pLOpil-LK0mQ6ZeceO-5o";
         $this->Job = & ClassRegistry::init('Cloudprint.Job');
@@ -28,23 +30,9 @@ class JobTestCase extends CakeTestCase {
         $this->assertTrue($return['success']);
     }
 
-    /**
-     * also cribbed from Cake 2
-     */
-    function testMime() {
-        $this->skipIf(!function_exists('finfo_open') && !function_exists('mime_content_type'), 'Not able to read mime type');
-        $path = CAKE . 'tests' . DS . 'test_app' . DS . 'webroot' . DS . 'theme' . DS . 'test_theme' . DS . 'img' . DS . 'cake.power.gif';
-        $file = new File($path);
-        $expected = 'image/gif';
-        if (function_exists('mime_content_type') && false === mime_content_type($file->pwd())) {
-            $expected = false;
-        }
-        $this->assertEqual($expected, $this->Job->getMime($file));
-    }
-
-    function testFileNotFound() {
-//create file handle
-        $file = new File(TMP . 'noexist.html', false);
+    function tearDown() {
+        unset($this->Job);
+        parent::tearDown();
     }
 
 }

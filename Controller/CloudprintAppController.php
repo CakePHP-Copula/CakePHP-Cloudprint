@@ -13,15 +13,14 @@ class CloudprintAppController extends AppController {
     public $components = array('Auth', 'Session');
 
     function beforeFilter() {
-        $this->Session->write("Auth.Vendor.id", '1');
+        $this->Session->write("Auth.User.id", '1');
         $this->Auth->authorize = 'controller';
         $this->Auth->loginAction = array('controller' => 'oauth', 'action' => 'authorize', 'plugin' => 'cloudprint');
         $this->Auth->autoRedirect = false;
-        $this->Auth->userModel = "Vendor";
     }
 
     function isAuthorized() {
-        $id = $this->Session->read("Auth.Vendor.id");
+        $id = $this->Session->read("Auth.User.id");
         if ($id) {
             $access_token = $this->Token->getTokenDb($id);
             if (!empty($access_token)) {

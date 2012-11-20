@@ -37,7 +37,7 @@ class OauthController extends CloudprintAppController {
         if ($this->Session->check('Auth.redirect')) {
             $redirect = $this->Session->read('Auth.redirect');
         }
-        Configure::load('cloudprint.cloudprint');
+        Configure::load('cloudprint');
         $config = Configure::read('Apis.Cloudprint');
         $request = array(
             'scheme' => $config['oauth']['scheme'],

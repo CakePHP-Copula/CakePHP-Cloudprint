@@ -1,0 +1,3 @@
+<?php
+CakePlugin::load('Apis');
+?>

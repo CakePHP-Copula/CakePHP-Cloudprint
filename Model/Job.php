@@ -11,6 +11,7 @@ class Job extends CloudprintAppModel {
     public $useDbConfig = 'cloudprint';
     public $useTable = 'job';
     public $primaryKey = 'id';
+    //this should probably be limited to save fields
     var $_schema = array(
         "id" => array(
             'type' => 'string',
@@ -31,6 +32,53 @@ class Job extends CloudprintAppModel {
         'errorCode' => array('type' => 'string'),
         'message' => array('type' => 'string'),
     );
+    var $validate = array(
+        'printer_id' => 'notEmpty',
+        'title' => 'notEmpty',
+        'capabilities' => 'notEmpty',
+        'content' => array(
+            'mime' => array(
+                'rule' => array('mimeType', array(
+                        'application/pdf',
+                        'image/jpeg',
+                        'image/png'
+                )),
+                'message' => 'Content must be PDF, JPEG, or PNG or a URL',
+                'allowEmpty' => false,
+                'last' => false
+            ),
+           'website' => array(
+                'rule' => 'validateRemote',
+                'message' => 'Content must be web-accessible PDF, JPEG, or PNG',
+                'last' => false
+            )
+        ),
+        'contentType' => array(
+            'type' => array(
+                'rule' => array('inList', array('application/pdf',
+                        'image/jpeg',
+                        'image/png')),
+                'message' => 'Content type needs to be a valid mimetype.',
+                'allowEmpty' => false
+            )
+        ),
+        'tag' => 'alphaNumeric'
+    );
+
+    function validateRemote($url) {
+        if (Validation::url($url)) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_HEADER, 1);
+            curl_setopt($ch, CURLOPT_NOBODY, 1);
+            curl_exec($ch);
+            $mime = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            return in_array($mime, array('application/pdf','image/jpeg','image/png'));
+        } else {
+            return false;
+        }
+    }
 
     function onError() {
         if (stristr($this->response, 'Error 404')) {
@@ -39,20 +87,26 @@ class Job extends CloudprintAppModel {
     }
 
     /*
-     * Returns array of all jobs.
+     * Returns information about one or more jobs.
      *
-     * ApisSource doesn't handle queries with *only* optional conditions well.
+     * @todo ApisSource doesn't handle queries with *only* optional conditions well.
      * @return array One or more jobs
      */
 
-    function getJobs() {
+    function getJobs($jobid = null) {
         $query = array('fields' => 'job');
+        if ($jobid) {
+            $query['jobid'] = $jobid;
+        }
         $jobs = $this->find('all', $query);
         return $jobs;
     }
 
     /* Adds page from local website to print queue
      * Creates document in app/tmp with filename of time() + $title
+     * 
+     * I considered rewriting this to be able to fetch documents that are on the public internet. I have decided that this plugin is slow enough without blocking execution to fetch remote files.
+     * If you really need the functionality, replace $this->requestAction with some sort of curl call.
      * @param string $url Cake-local url of document to be printed
      * @param string $printerid
      * @param string $title Title of document
@@ -60,7 +114,7 @@ class Job extends CloudprintAppModel {
      * @param string $tags A string of tags separated by spaces. Documents can be searched for by tag.
      */
 
-    function addJobfromURL($url, $printerid, $title, $capabilities= null, $tags = null) {
+    function addJobfromURL($url, $printerid, $title, $capabilities = null, $tags = null) {
         $document = $this->requestAction($url, array('return'));
         $resource = new File(TMP . DS . time() . $title, true);
         $resource->write($document);
@@ -71,25 +125,9 @@ class Job extends CloudprintAppModel {
         $resource = new File($path);
         if ($resource->exists()) {
             return $this->addJob($resource, $printerid, $title, $capabilities, $tags);
+        } else {
+            throw new CakeException("The file to be printed was not found on the server", 404);
         }
-    }
-
-    /* shamelessly cribbed from CakePHP 2.0
-     * @param File $file document to be tested
-     */
-
-    function getMime(File &$file) {
-        if (!$file->exists()) {
-            return false;
-        }
-        if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME);
-            list ($type, $charset) = explode(';', finfo_file($finfo, $file->pwd()));
-            return $type;
-        } elseif (function_exists('mime_content_type')) {
-            return mime_content_type($file->pwd());
-        }
-        return false;
     }
 
     /*
@@ -100,15 +138,9 @@ class Job extends CloudprintAppModel {
      * @param string $tags
      */
 
-    private function addJob(File &$resource, $printerid, $title, $capabilities = null, $tags = null) {
+    private function addJob(File &$resource, $printerid, $title, $capabilities = null, $tag = null) {
         $capabilities = (empty($capabilities)) ? "{[]}" : $capabilities;
-        $acceptedContentTypes = array(
-            'application/pdf',
-            'image/jpeg',
-            'image/png'
-        );
-        $mime = $this->getMime($resource);
-        if (in_array($mime, $acceptedContentTypes)) {
+        $mime = $resource->mime();
             $job = array(
                 'Job' => array(
                     'printerid' => $printerid,
@@ -117,16 +149,13 @@ class Job extends CloudprintAppModel {
                     'content' => "data:" . $mime . ";base64," . base64_encode($resource->read()),
                     'contentType' => $mime
                     ));
-            if (!empty($tags)) {
-                $job['Job']['tag'] = $tags;
+            if (!empty($tag)) {
+                $job['Job']['tag'] = $tag;
             }
             $this->request['method'] = 'POST';
             $this->save($job);
             return $this->response;
-        } else {
-            return false;
         }
-    }
 
 }
 

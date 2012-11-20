@@ -21,7 +21,11 @@ class TokenFixture extends CakeTestFixture {
             'type' => 'string',
             'null' => false
         ),
-        'modified' => 'datetime'
+        'modified' => 'datetime',
+        'api' => array(
+            'type' => 'string',
+            'null' => false
+        )
     );
     var $records = array(
         array(
@@ -29,15 +33,17 @@ class TokenFixture extends CakeTestFixture {
             'user_id' => '1',
             'access_token' => 'ya29.AHES6ZTopEd2PaRCaLZDd0B9TKNqdt857DYrlC-Welo9d84LaElzAg',
             'modified' => '2012-11-07 23:10:18',
-            'refresh_token' => '1/jr6xd0f83uXDh-sBE3eO_lo8qMr11pOQXalzfTAYXGk'
+            'refresh_token' => '1/jr6xd0f83uXDh-sBE3eO_lo8qMr11pOQXalzfTAYXGk',
+            'api' => 'Cloudprint'
         ),
         array(
             'id' => '3',
-            'user_id' => '1',
+            'user_id' => '2',
             'access_token' => 'ya29.AHES6ZTopEd2PaRCaLZDd0B9TKNqdt857DYrlC-Welo9d84LaElzAg',
             'modified' => '2012-11-07 23:10:18',
-            'refresh_token' => '1/jr6xd0f83uXDh-sBE3eO_lo8qMr11pOQXalzfTAYXGk'
-        ),
+            'refresh_token' => '1/jr6xd0f83uXDh-sBE3eO_lo8qMr11pOQXalzfTAYXGk',
+            'api' => 'Cloudprint'
+        )
     );
 
 }

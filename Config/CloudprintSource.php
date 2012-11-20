@@ -1,5 +1,8 @@
 <?php
-
+/**
+ *  For full documentation on Cloudprint service interfaces, see
+ * @link https://developers.google.com/cloud-print/docs/appInterfaces
+ */
 $config['Apis']['Cloudprint']['hosts'] = array(
     'oauth' => 'accounts.google.com/o/oauth2',
     'rest' => 'www.google.com/cloudprint'
@@ -8,9 +11,7 @@ $config['Apis']['Cloudprint']['oauth'] = array(
     'version' => '2.0',
     'scheme' => 'https',
     'authorize' => 'auth',
-    'access' => 'token',
-    'key' => '286950796224.apps.googleusercontent.com',
-    'secret' => '1R6n16IOXoWSGWDseGhpFP3o'
+    'access' => 'token'
 );
 $config['Apis']['Cloudprint']['scope'] = "https://www.googleapis.com/auth/cloudprint";
 $config['Apis']['Cloudprint']['callback'] = "https://splat.dnsd.me/oauth2callback";
