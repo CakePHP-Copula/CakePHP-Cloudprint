@@ -1,7 +1,7 @@
 CakePHP-Cloudprint
 ==================
 
-A CakePHP Plugin for Google's Cloud Print Service
+A CakePHP Plugin for Google's [Cloud Print Service][]
 
 Cloudprint is based on Dean Sofer's (ProLoser) [Apis Plugin][], which is itself based on work by Neil Crookes.
 It also uses Plank's [Pdfize][] plugin, more as a proof-of-concept than an actual implementation.
@@ -22,8 +22,6 @@ Configuration
 
 `config/cloudprint.php`
 `$config['Apis']['Cloudprint']['callback']` this should be set to the callback URI registered with Google. It needs to match exactly.
-`$config['Apis']['Cloudprint']['oauth']['key']` this should match the value for 'login' above.
-`$config['Apis']['Cloudprint']['oauth']['secret']` this should match the value for 'password' above.
 
 `config/routes.php`
 This should be appended to your main routes file. The callback route is necessary, but the authorization route is not.
@@ -54,6 +52,7 @@ The tests for models/job and models/printer need to be edited with a valid acces
 [apis plugin]: https://github.com/ProLoser/CakePHP-Api-Datasources
 [google's apis console]: https://code.google.com/apis/console/
 [pdfize]: https://github.com/plank/pdfize
+[cloud print service]: https://developers.google.com/cloud-print/docs/appInterfaces
 
 Errata
 ------

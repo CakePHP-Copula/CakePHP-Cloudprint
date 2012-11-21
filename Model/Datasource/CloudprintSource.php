@@ -1,6 +1,5 @@
 <?php
-
-App::import('Datasource', 'Apis.ApisSource');
+App::uses('ApisSource', 'Apis.Model/Datasource');
 
 Class CloudprintSource extends ApisSource {
 
@@ -12,8 +11,8 @@ Class CloudprintSource extends ApisSource {
     // Key => Values substitutions in the uri-path right before the request is made. Scans uri-path for :keyname
     public $tokens = array();
 
-    public function __construct($config) {
-        Configure::load('cloudprint.cloudprint');
+ /*   public function __construct($config) {
+        Configure::load('cloudprint');
         $config['method'] = 'OAuthV2';
         App::import('Core', 'HttpSocket');
         $http = new HttpSocket(array(
@@ -23,15 +22,10 @@ Class CloudprintSource extends ApisSource {
                     ))
                 ));
         parent::__construct($config, $http);
-    }
-
-    public function addOauthV2(&$model, $request) {
-        $request['header']['Authorization'] = "OAuth " . $this->config['access_token'];
-        return $request;
-    }
+    }*/
 
     public function beforeRequest(&$model, $request) {
-       $request['header']['x-cloudprint-proxy'] = 'yallanotlob';
+       $request['header']['x-cloudprint-proxy'] = 'cakephp-cloudprint';
         return $request;
     }
     public function isInterfaceSupported($interface) {
