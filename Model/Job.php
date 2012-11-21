@@ -126,7 +126,7 @@ class Job extends CloudprintAppModel {
         if ($resource->exists()) {
             return $this->addJob($resource, $printerid, $title, $capabilities, $tags);
         } else {
-            throw new CakeException("The file to be printed was not found on the server", 404);
+            throw new NotFoundException("The file to be printed was not found on the server", 404);
         }
     }
 

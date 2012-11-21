@@ -15,7 +15,7 @@ class OauthAuthorize extends BaseAuthorize {
             $className = $apiName . "Token";
             App::uses($className, $plugin . 'Model');
             if (!class_exists($className)) {
-                throw new CakeException("Token model for Api $apiName does not exist", 404);
+                throw new NotFoundException("Token model for Api $apiName does not exist");
             }
             $this->{$className} = ClassRegistry::init($className);
             $token = $this->{$className}->getTokenDb($user['id']);

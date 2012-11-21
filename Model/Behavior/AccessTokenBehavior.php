@@ -66,6 +66,7 @@ class AccessTokenBehavior extends ModelBehavior {
             return json_decode($response->body, true);
         } else {
             // @todo write pretty error handlers. Because someone may eventually care.
+            // @todo make exceptions happen at the datasource layer
             throw new CakeException($response->body, $response->code);
         }
     }
