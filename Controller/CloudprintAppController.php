@@ -12,9 +12,8 @@ class CloudprintAppController extends AppController {
     public $components = array('Auth', 'Session');
 
     function beforeFilter() {
-       // $this->Session->write("Auth.User.id", '1'); #for testing
-        $this->Auth->authorize = 'Cloudprint.Oauth';
-        $this->Auth->unauthorizedRedirect = false;
+        $this->Session->write("Auth.User.id", '1'); #for testing
+        $this->Auth->authorize = 'Apis.Oauth';
     }
 
 }

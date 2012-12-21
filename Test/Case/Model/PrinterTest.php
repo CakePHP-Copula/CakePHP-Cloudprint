@@ -1,30 +1,40 @@
 <?php
 
 App::uses('Printer', 'Cloudprint.Model');
+App::uses('CakeSession', 'Model/Datasource');
 
 class PrinterCase extends CakeTestCase {
 
-    function setUp() {
-        parent::setUp();
-        $ds = ConnectionManager::getDataSource('cloudprint');
-        $ds->config['access_token'] = "ya29.AHES6ZRf3tiSFvq52G1qGch3nXYjvxAtDf-rwHD13gT2ifBK0h1XVPo";
-        $this->Printer = & ClassRegistry::init('Cloudprint.Printer');
-    }
+	public $fixtures = array('plugin.cloudprint.token');
 
-    function testGetPrinter() {
-        $result = $this->Printer->getPrinters();
-        $this->assertEquals($result['success'], true);
-    }
+	function setUp() {
+		parent::setUp();
+		$path = Configure::read('Apis.cloudprint.path');
+		if (empty($path)) {
+			Configure::load('Cloudprint.paths');
+		}
+		CakeSession::write('Auth.User.id', '3');
+		$this->Printer = ClassRegistry::init('Cloudprint.Printer');
+		$this->Printer->useDbConfig = 'cloudprint';
+		$this->Printer->authorize('3', null, 'cloudprint');
+	}
 
-    function testGetPrinterInfo() {
-        $printerid = '__google__docs';
-        $result = $this->Printer->getPrinterInfo($printerid);
-        $this->assertEquals($result['success'], true);
-    }
-    function tearDown() {
-        unset($this->Printer);
-        parent::tearDown();
-    }
+	function testGetPrinter() {
+		$result = $this->Printer->getPrinters();
+		$this->assertEquals(true, $result['success']);
+	}
+
+	function testGetPrinterInfo() {
+		$printerid = '__google__docs';
+		$result = $this->Printer->getPrinterInfo($printerid);
+		$this->assertEquals(true, $result['success']);
+	}
+
+	function tearDown() {
+		unset($this->Printer);
+		parent::tearDown();
+	}
+
 }
 
 ?>

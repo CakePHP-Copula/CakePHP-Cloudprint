@@ -21,16 +21,16 @@ class TestPrintersController extends PrintersController {
 
 }
 
-class PrintersTestCase extends CakeTestCase {
+class PrintersControllerTestCase extends CakeTestCase {
 
     function startTest() {
         $this->Printers = new TestPrintersController();
         $this->Printers->constructClasses();
-        $this->Printers->Component->initialize($this->Printers);
+      //  $this->Printers->Component->initialize($this->Printers);
     }
 
     function testIndex(){
-        
+        $this->assertTrue(true);
     }
 
     function endTest() {
