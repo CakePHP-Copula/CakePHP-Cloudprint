@@ -12,7 +12,7 @@ class DATABASE_CONFIG {
 		'expires' => '3600'
 	);
 	var $cloudprintToken = array(
-		'datasource' => 'Apis.RemoteTokenSource',
+		'datasource' => 'Copula.RemoteTokenSource',
 		'login' => '',
 		'password' => '',
 		'authMethod' => 'OAuthV2',

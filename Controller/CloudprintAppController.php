@@ -13,7 +13,7 @@ class CloudprintAppController extends AppController {
 
     function beforeFilter() {
         $this->Session->write("Auth.User.id", '1'); #for testing
-        $this->Auth->authorize = 'Apis.Oauth';
+        $this->Auth->authorize = 'Copula.Oauth';
     }
 
 }

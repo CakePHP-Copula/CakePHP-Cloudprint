@@ -1,4 +1,4 @@
 <?php
-CakePlugin::load('Apis');
+CakePlugin::load('Copula');
 Configure::load('Cloudprint.paths');
 ?>

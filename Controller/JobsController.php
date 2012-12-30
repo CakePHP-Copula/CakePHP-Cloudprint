@@ -13,7 +13,7 @@ class JobsController extends CloudprintAppController {
 	public $name = "Jobs";
 	public $uses = array('Cloudprint.Job', 'Cloudprint.Printer');
 	public $components = array(
-		'Apis.Oauth',
+		'Copula.Oauth',
 		/*'Pdfize.Pdf' => array(
 			'actions' => array('pdftest'),
 			'size' => 'a7',

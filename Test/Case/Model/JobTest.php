@@ -15,7 +15,7 @@ class JobTestCase extends CakeTestCase {
 
 	function setUp() {
 		parent::setUp();
-		$path = Configure::read('Apis.cloudprint.path');
+		$path = Configure::read('Copula.cloudprint.path');
 		if (empty($path)) {
 			Configure::load('Cloudprint.paths');
 		}

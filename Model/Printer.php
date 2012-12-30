@@ -11,7 +11,7 @@ class Printer extends CloudprintAppModel {
 	public $useDbConfig = "cloudprint";
 	public $useTable = "printer";
 	public $primaryKey = "id";
-	public $actsAs = array('Apis.OAuthConsumer' => array('autoFetch' => false));
+	public $actsAs = array('Copula.OAuthConsumer' => array('autoFetch' => false));
 
 	function getPrinters() {
 		$printers = $this->find('all', array(

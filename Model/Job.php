@@ -11,7 +11,7 @@ class Job extends CloudprintAppModel {
 	public $useDbConfig = 'cloudprint';
 	public $useTable = 'job';
 	public $primaryKey = 'id';
-	public $actsAs = array('Apis.OAuthConsumer' => array('autoFetch' => false));
+	public $actsAs = array('Copula.OAuthConsumer' => array('autoFetch' => false));
 	//this should probably be limited to save fields
 	public $schema = array(
 		"id" => array(

@@ -1,5 +1,5 @@
 <?php
-App::uses('ApisSource', 'Apis.Model/Datasource');
+App::uses('ApisSource', 'Copula.Model/Datasource');
 
 Class CloudprintSource extends ApisSource {
 

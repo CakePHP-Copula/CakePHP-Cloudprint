@@ -6,7 +6,7 @@
 class PrintersController extends CloudprintAppController {
 
 	public $uses = array('Cloudprint.Printer');
-	public $components = array('Apis.Oauth', 'Auth' => array('authorize' => 'Apis.Oauth'));
+	public $components = array('Copula.Oauth', 'Auth' => array('authorize' => 'Copula.Oauth'));
 
 	function index() {
 		$printers = $this->Printer->getPrinters();
