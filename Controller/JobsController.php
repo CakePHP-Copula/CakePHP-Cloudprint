@@ -11,18 +11,19 @@
 class JobsController extends CloudprintAppController {
 
 	public $name = "Jobs";
+
 	public $uses = array('Cloudprint.Job', 'Cloudprint.Printer');
-	public $components = array(
-		'Copula.Oauth',
-		/*'Pdfize.Pdf' => array(
+
+	/* public $components = array(
+		'Pdfize.Pdf' => array(
 			'actions' => array('pdftest'),
 			'size' => 'a7',
 			'orientation' => 'portrait',
-		),*/
-		'Auth');
+		)
+		);*/
 	public $Apis = array('cloudprint' => array('store' => 'Db'));
 
-	function beforeFilter() {
+	public function beforeFilter() {
 		//allow any logged in users to add print jobs
 		if ($this->Auth->loggedIn()) {
 			$this->Auth->allow('add');
@@ -31,12 +32,12 @@ class JobsController extends CloudprintAppController {
 		parent::beforeFilter();
 	}
 
-	function index() {
+	public function index() {
 		$jobs = $this->Job->getJobs();
 		$this->set('jobs', $jobs);
 	}
 
-	function view($jobid) {
+	public function view($jobid) {
 		if ($jobid) {
 			$job = $this->Job->getJobs($jobid);
 			$this->set('job', $job);
@@ -45,7 +46,7 @@ class JobsController extends CloudprintAppController {
 		}
 	}
 
-	function cancel($jobid) {
+	public function cancel($jobid) {
 		if (!empty($jobid)) {
 			if ($this->Job->delete($jobid)) {
 				$this->Session->setFlash('Job ' . $jobid . ' cancelled.');
@@ -56,7 +57,7 @@ class JobsController extends CloudprintAppController {
 		$this->redirect(array('controller' => 'jobs', 'action' => 'index'));
 	}
 
-	function pdftest() {
+	public function pdftest() {
 		/*
 		 * This function exists only to demonstrate how to set up the PDF component. It uses the default layout in plugins/pdfize/views/layouts/pdf
 		 * If you create the file app/views/layouts/pdf.ctp it will use that instead.
@@ -64,7 +65,7 @@ class JobsController extends CloudprintAppController {
 		 */
 	}
 
-	function add($resource, $title, $user_id = null) {
+	public function add($resource, $title, $user_id = null) {
 		$id = ($user_id) ? $user_id : AuthComponent::user('id');
 		$token = $this->Token->getTokenDb('cloudprint', $id);
 		if ($token) {

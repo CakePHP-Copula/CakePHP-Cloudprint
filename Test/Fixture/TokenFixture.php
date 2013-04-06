@@ -1,8 +1,8 @@
 <?php
 
-class TokenstoredbFixture extends CakeTestFixture {
+class TokenFixture extends CakeTestFixture {
 
-	var $name = "Tokenstoredb";
+	var $name = "Token";
 	var $table = 'tokens';
 	var $fields = array(
 		'id' => array(
